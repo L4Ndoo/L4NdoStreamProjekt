@@ -1,0 +1,24 @@
+<html>
+    <script>
+        var newImage = new Image();
+        newImage.src = "https://localhost:5001/api/stream/image";
+
+        function updateImage()
+        {
+            if(newImage.complete){
+                document.getElementById("image").src = newImage.src
+                newImage = new Image();
+                newImage.src = "https://localhost:5001/api/stream/image?_=" + new Date();
+            }
+        }
+
+        window.addEventListener('load', (event) => {
+            setInterval(updateImage, 15);
+        });
+
+    </script>
+
+    <body>
+        <img id="image" width="800" height="800">
+    </body>
+</html>
