@@ -25,10 +25,10 @@ namespace L4NdoStreamService.Entities
         private Process _ffmpegProcess = null;
         private BinaryWriter _streamWriter = null;
 
-        public FFmpegRenderer(FrameSource frameSource, int frameRate = 15,
+        public FFmpegRenderer(FrameSource frameSource, int frameRate = 30,
             string outputPath = "\"C:\\xampp\\htdocs\\test\\Videoframes\\output\\out.m3u8\"",
             OutputTypes outputType = OutputTypes.hls,
-            string codecOptions = "libx264 -preset ultrafast -pix_fmt yuv420p -threads 6",
+            string codecOptions = "h264 -b:v 1984k -maxrate 1024k -bufsize 4092k -pix_fmt yuv420p -tune zerolatency",
             int outputWidth = 800, int outputHeight = 800)
         {
             this._frameSource = frameSource;
@@ -50,14 +50,13 @@ namespace L4NdoStreamService.Entities
             ProcessStartInfo ffmpegProcessInfo = new ProcessStartInfo()
             {
                 FileName = "Libs\\ffmpeg_gpl.exe",
-                Arguments = $"-y -r {this._frameSource.FramesPerSecond} " +
-                    $"-re -pix_fmt rgb24 -s " +
+                Arguments = $"-y -re -pix_fmt rgb24 -s " +
                     $"{this._frameSource.Width}x{this._frameSource.Height} " +
-                    $"-f rawvideo -i - -c:v {CodecOptions} -vsync 1 " +
+                    $"-f rawvideo -i - -c:v {CodecOptions} " +
                     $"-vf scale={this.OutputWidth}x{this.OutputHeight} " +
-                    $"-r {this.FrameRate} -vsync:v 2 " +
+                    $"-vsync:v 2 -threads 6 " +
                     (this.OutputType == OutputTypes.hls ?
-                        $"-f hls {OutputPath}":
+                        $"-flags +cgop -g 90 -hls_time 1 -f hls {OutputPath}":
                         $"{OutputPath}"
                     ),
                 RedirectStandardInput = true
