@@ -28,7 +28,7 @@ namespace L4NdoStreamService.Entities
         public FFmpegRenderer(FrameSource frameSource, int frameRate = 15,
             string outputPath = "\"C:\\xampp\\htdocs\\test\\Videoframes\\output\\out.m3u8\"",
             OutputTypes outputType = OutputTypes.hls,
-            string codecOptions = "libx264 -preset fast -pix_fmt yuv420p -threads 6",
+            string codecOptions = "libx264 -preset ultrafast -pix_fmt yuv420p -threads 6",
             int outputWidth = 800, int outputHeight = 800)
         {
             this._frameSource = frameSource;
