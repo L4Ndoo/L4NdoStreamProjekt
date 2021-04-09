@@ -1,6 +1,7 @@
 ﻿using L4NdoStreamService.FrameSources;
 using L4NdoStreamService.Renderer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,9 +18,17 @@ namespace L4NdoStreamService.Controller
     [ApiController]
     public class StreamController : ControllerBase
     {
+        private ILogger<StreamController> _logger;
         private FrameSource _frameSource;
-        public StreamController(FrameSource frameSource) =>
+        private FFmpegJpgRenderer _renderer;
+
+        public StreamController(ILogger<StreamController> logger, FrameSource frameSource, FFmpegJpgRenderer renderer)
+        {
+            this._logger = logger;
             this._frameSource = frameSource;
+            this._renderer = renderer;
+            renderer.Logger = logger;
+        }
 
         [HttpPost("play")]
         public Task PlaySource() =>
@@ -43,9 +52,20 @@ namespace L4NdoStreamService.Controller
         [HttpGet("video")]
         public IActionResult GetVideo()
         {
-            Task<bool> encoderTask;
-            var stream = StreamRenderer.EncodeFrameSource(this._frameSource, out encoderTask);
-            return this.File(stream, "video/webm");
+            return null;
+        }
+
+        [HttpPost("test/start")]
+        public async Task TestStart()
+        {
+            _logger.LogWarning("TESTLOG");
+            await _renderer.Start();
+        }
+
+        [HttpPost("test/stop")]
+        public async Task TestStop()
+        {
+            await _renderer.Stop();
         }
     }
 }
