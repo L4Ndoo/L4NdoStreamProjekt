@@ -38,7 +38,8 @@ namespace L4NdoStreamService.Renderer
             ProcessStartInfo ffmpegProcessInfo = new ProcessStartInfo()
             {
                 FileName = "ffmpeg.exe",
-                Arguments = "-y -f rawvideo -r 25 -pix_fmt rgb24 -s 4096x4096 -i - -f hls -vf scale=800x800 \"C:\\xampp\\htdocs\\test\\Videoframes\\output\\out.m3u8\"",
+                Arguments = "-y -re -pix_fmt rgb24 -s 4096x4096 -f rawvideo -i - -c:v libx264 -preset fast -pix_fmt yuv420p -threads 6 -vf scale=800x800 -f hls \"C:\\xampp\\htdocs\\test\\Videoframes\\output\\out.m3u8\"",
+                //Arguments = "-y -f rawvideo -re -pix_fmt rgb24 -s 4096x4096 -i - -c:v libx264 -preset fast -pix_fmt yuv420p -s 1280x800 -threads 0 -vf scale=800x800 -f flv out.flv",
                 RedirectStandardInput = true
             };
 
