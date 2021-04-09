@@ -1,16 +1,6 @@
-﻿using L4NdoStreamService.FrameSources;
-using L4NdoStreamService.Renderer;
+﻿using L4NdoStreamService.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
-using static System.Net.WebRequestMethods;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace L4NdoStreamService.Controller
 {
@@ -19,53 +9,49 @@ namespace L4NdoStreamService.Controller
     public class StreamController : ControllerBase
     {
         private ILogger<StreamController> _logger;
-        private FrameSource _frameSource;
-        private FFmpegJpgRenderer _renderer;
 
-        public StreamController(ILogger<StreamController> logger, FrameSource frameSource, FFmpegJpgRenderer renderer)
+        private FrameSource _frameSource;
+        private FFmpegRenderer _renderer;
+
+        public StreamController(ILogger<StreamController> logger, 
+            FrameSource frameSource, FFmpegRenderer renderer)
         {
             this._logger = logger;
             this._frameSource = frameSource;
             this._renderer = renderer;
-            renderer.Logger = logger;
         }
 
-        [HttpPost("play")]
-        public Task PlaySource() =>
+
+        [HttpPost("source/play")]
+        public void SourcePlay() =>
             this._frameSource.PlaySource();
 
-        [HttpPost("pause")]
-        public Task PauseSource() =>
+        [HttpPost("source/pause")]
+        public void SourcePause() =>
             this._frameSource.PauseSource();
 
-        [HttpPost("fps/{fps}")]
-        public void SetFps(int fps) =>
+        [HttpPost("source/{fps}")]
+        public void SourceFps(int fps) =>
             this._frameSource.FramesPerSecond = fps;
 
-        [HttpGet("image")]
-        public async Task<IActionResult> GetImage()
-        {
-            var frame = await this._frameSource.GrabFrame();
-            return File(frame, "image/jpeg");
-        }
 
-        [HttpGet("video")]
+        [HttpPost("renderer/start")]
+        public void RendererStart() =>
+            this._renderer.Start();
+
+        [HttpPost("renderer/stop")]
+        public void RendererStop() =>
+            this._renderer.Stop();
+
+
+        [HttpGet("source/image")]
+        public IActionResult GetImage() =>
+         File(this._frameSource.GrabJpegFrame(), "image/jpeg");
+
+        [HttpGet("renderer/video")]
         public IActionResult GetVideo()
         {
             return null;
-        }
-
-        [HttpPost("test/start")]
-        public async Task TestStart()
-        {
-            _logger.LogWarning("TESTLOG");
-            await _renderer.Start();
-        }
-
-        [HttpPost("test/stop")]
-        public async Task TestStop()
-        {
-            await _renderer.Stop();
         }
     }
 }
