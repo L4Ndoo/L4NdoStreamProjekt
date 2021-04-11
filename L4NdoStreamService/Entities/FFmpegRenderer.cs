@@ -4,13 +4,12 @@ using System.IO;
 
 namespace L4NdoStreamService.Entities
 {
-    public enum OutputTypes { mp4, hls, rtmp }
     public class FFmpegRenderer: BackgroundUpdater
     {
         public string OutputPath { get; set; }
-        public OutputTypes OutputType { get; set; }
 
         public string CodecOptions { get; set; }
+        public string OutputOptions { get; set; }
 
         public int OutputWidth { get; set; }
         public int OutputHeight { get; set; }
@@ -18,26 +17,28 @@ namespace L4NdoStreamService.Entities
         public int FrameRate
         {
             get => this.UpdatesPerSecond;
-            protected set => this.UpdatesPerSecond = value;
+            set => this.UpdatesPerSecond = value;
         }
 
         private FrameSource _frameSource;
         private Process _ffmpegProcess = null;
         private BinaryWriter _streamWriter = null;
+        public string _options = "";
 
-        public FFmpegRenderer(FrameSource frameSource, int frameRate = 30,
+        public FFmpegRenderer(FrameSource frameSource, int frameRate = 10,
             string outputPath = "\"C:\\xampp\\htdocs\\test\\Videoframes\\output\\out.m3u8\"",
-            OutputTypes outputType = OutputTypes.hls,
-            string codecOptions = "h264 -b:v 1984k -maxrate 1024k -bufsize 4092k -pix_fmt yuv420p -tune zerolatency",
-            int outputWidth = 800, int outputHeight = 800)
+            string codecOptions = "-c:v libx264 -crf 30 -maxrate 1M -bufsize 2M -tune fastdecode -movflags +faststart",
+            string outputOptions = "-f hls -flags +cgop -g 90 -hls_time 1",
+            int outputWidth = 2048, int outputHeight = 2048)
         {
             this._frameSource = frameSource;
             this.FrameRate = frameRate;
             this.OutputPath = outputPath;
-            this.OutputType = outputType;
+            this.OutputOptions = outputOptions;
             this.CodecOptions = codecOptions;
             this.OutputWidth = outputWidth;
             this.OutputHeight = outputHeight;
+            this._options = $"-vf format=yuv420p -vf scale={this.OutputWidth}x{this.OutputHeight} -vsync:v 2 -threads 6";
         }
 
         public void Start()
@@ -50,15 +51,8 @@ namespace L4NdoStreamService.Entities
             ProcessStartInfo ffmpegProcessInfo = new ProcessStartInfo()
             {
                 FileName = "Libs\\ffmpeg_gpl.exe",
-                Arguments = $"-y -re -pix_fmt rgb24 -s " +
-                    $"{this._frameSource.Width}x{this._frameSource.Height} " +
-                    $"-f rawvideo -i - -c:v {CodecOptions} " +
-                    $"-vf scale={this.OutputWidth}x{this.OutputHeight} " +
-                    $"-vsync:v 2 -threads 6 " +
-                    (this.OutputType == OutputTypes.hls ?
-                        $"-flags +cgop -g 90 -hls_time 1 -f hls {OutputPath}":
-                        $"{OutputPath}"
-                    ),
+                Arguments = $"-y -f image2pipe -framerate 10 -i - " +
+                    $"{CodecOptions} {_options} {OutputOptions} -r {FrameRate} {OutputPath}",
                 RedirectStandardInput = true
             };
 
@@ -91,9 +85,9 @@ namespace L4NdoStreamService.Entities
             this._ffmpegProcess = null;
         }
 
-        protected override void Update(TimeSpan timeSinceLastUpdate)
+        protected override void Update()
         {
-            byte[] frame = this._frameSource.GrabFrame();
+            byte[] frame = this._frameSource.GrabJpegFrame();
             this._streamWriter.Write(frame);
         }
 

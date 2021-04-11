@@ -26,6 +26,9 @@ namespace L4NdoStreamService.Entities
         private ConcurrentDictionary<int, byte[]> _frameCache = 
             new ConcurrentDictionary<int, byte[]>();
 
+        private ConcurrentDictionary<int, byte[]> _jpegCache =
+            new ConcurrentDictionary<int, byte[]>();
+
         private int _frameIndex = 0;
         private object _frameIndexLock = new object();
 
@@ -41,24 +44,20 @@ namespace L4NdoStreamService.Entities
             this.FrameCount = frameCount;
             this.FramesPerSecond = framesPerSecond;
 
-            _ = Task.Run(() =>
+            var tasks = new Task[FrameCount];
+            for (int i = 0; i < FrameCount; i++)
             {
-                var tasks = new Task[FrameCount];
-                for (int i = 0; i < FrameCount; i++)
-                {
-                    var index = i;
-                    tasks[i] = Task.Run(() => this.GrabFrame(index));
-                }
-                Task.WaitAll(tasks);
-            });
+                var index = i;
+                tasks[i] = Task.Run(() => this.GrabJpeg(index));
+            }
+            Task.WaitAll(tasks);
         }
 
-        protected override void Update(TimeSpan time)
+        protected override void Update()
         {
             lock (this._frameIndexLock)
             {
-                this._frameIndex = ((int)Math.Round(time.TotalMilliseconds /
-                    (1000.0 / this.FramesPerSecond)) + this._frameIndex) % this.FrameCount;
+                this._frameIndex = (this._frameIndex + 1) % this.FrameCount;
             }
         }
 
@@ -75,7 +74,7 @@ namespace L4NdoStreamService.Entities
             await Task.Run(this.GrabFrame);
 
         public byte[] GrabJpegFrame() =>
-            this.GrabJpg(this._frameIndex);
+            this.GrabJpeg(this._frameIndex);
 
         private byte[] GrabFrame(int frameIndex)
         {
@@ -113,11 +112,19 @@ namespace L4NdoStreamService.Entities
                 return frame;
             }
         }
-        private byte[] GrabJpg(int frameIndex)
+        private byte[] GrabJpeg(int frameIndex)
         {
-            var fileName = $"{this.Path}{this.Name}{frameIndex.ToString().PadLeft(4, '0')}.jpg";
-            byte[] jpg = File.ReadAllBytes(fileName);
-            return jpg;
+            if (this._jpegCache.ContainsKey(frameIndex))
+            {
+                return this._jpegCache[frameIndex];
+            }
+            else
+            {
+                var fileName = $"{this.Path}{this.Name}{frameIndex.ToString().PadLeft(4, '0')}.jpg";
+                byte[] jpeg = File.ReadAllBytes(fileName);
+                this._jpegCache[frameIndex] = jpeg;
+                return jpeg;
+            }
         }
     }
 }

@@ -6,48 +6,40 @@ namespace L4NdoStreamService.Entities
 {
     public abstract class BackgroundUpdater: IDisposable
     {
-        protected int UpdatesPerSecond { get; set; }
+        protected int UpdatesPerSecond 
+        {
+            get => _updatesPerSecond;
+            set
+            {
+                _timer?.Change(0, 1000 / value);
+                _updatesPerSecond = value;
+            }
+        }
 
-        private Task _updateTask;
-        private CancellationTokenSource _cancellationTokenSource;
+        private int _updatesPerSecond;
+        private Timer _timer;
 
-        protected abstract void Update(TimeSpan timeSinceLastUpdate);
+        protected abstract void Update();
 
         protected void StartUpdates()
         {
-            if (_updateTask != null && !_updateTask.IsCompleted && !_updateTask.IsFaulted)
+            if (_timer != null)
                 return;
 
             this.StopUpdates();
-            _cancellationTokenSource = new CancellationTokenSource();
 
-            _updateTask = Task.Run(() =>
-            {
-                var before = DateTime.Now;
-                var time = DateTime.Now - before;
-                while (!_cancellationTokenSource.IsCancellationRequested)
-                {
-                    time = DateTime.Now - before;
-                    before = DateTime.Now;
-
-                    this.Update(time);
-
-                    Thread.Sleep(1000 / this.UpdatesPerSecond);
-                }
-            }, this._cancellationTokenSource.Token);
+            _timer = new Timer(state => this.Update(), null, 0, 1000 / this.UpdatesPerSecond);
         }
 
         protected void StopUpdates()
         {
-            this._cancellationTokenSource?.Cancel();
-
             try
             {
-                _updateTask?.Dispose();
+                _timer?.Dispose();
             }
             finally
             {
-                _updateTask = null;
+                _timer = null;
             }
         }
 
