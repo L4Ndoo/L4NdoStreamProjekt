@@ -53,12 +53,15 @@ namespace L4NdoStreamService.Entities
             Task.WaitAll(tasks);
         }
 
-        protected override void Update()
+        protected override Task Update()
         {
-            lock (this._frameIndexLock)
+            return Task.Run(() =>
             {
-                this._frameIndex = (this._frameIndex + 1) % this.FrameCount;
-            }
+                lock (this._frameIndexLock)
+                {
+                    this._frameIndex = (this._frameIndex + 1) % this.FrameCount;
+                }
+            });
         }
 
         public void PlaySource() =>

@@ -12,9 +12,9 @@ namespace L4NdoStreamService
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            var frameSource = new FrameSource(".\\Videoframes\\", "colorshift_", 300);
+            var frameSource = new FrameSource(".\\Videoframes\\", "colorshift_", 300, 30);
             var renderer = new FFmpegRenderer(frameSource);
-            frameSource.PlaySource();
+            //frameSource.PlaySource();
 
             services.AddCors(o => o.AddPolicy("AllowAll", builder =>
             {

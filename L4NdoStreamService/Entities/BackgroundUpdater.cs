@@ -17,9 +17,10 @@ namespace L4NdoStreamService.Entities
         }
 
         private int _updatesPerSecond;
+        private Task _updateTask;
         private Timer _timer;
 
-        protected abstract void Update();
+        protected abstract Task Update();
 
         protected void StartUpdates()
         {
@@ -28,18 +29,20 @@ namespace L4NdoStreamService.Entities
 
             this.StopUpdates();
 
-            _timer = new Timer(state => this.Update(), null, 0, 1000 / this.UpdatesPerSecond);
+            _timer = new Timer(this.Update, this, 0, 1000 / this.UpdatesPerSecond);
         }
 
         protected void StopUpdates()
         {
-            try
+            try { _timer?.Dispose(); }
+            finally { _timer = null; }
+        }
+
+        private void Update(object state)
+        {
+            if (this._updateTask == null || this._updateTask.IsCompleted)
             {
-                _timer?.Dispose();
-            }
-            finally
-            {
-                _timer = null;
+                this._updateTask = this.Update();
             }
         }
 
