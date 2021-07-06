@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -19,15 +20,8 @@ namespace L4NdoStreamService.Entities
         public int FramesPerSecond 
         { 
             get => this.UpdatesPerSecond;
-            set => this.UpdatesPerSecond = value; 
+            set => this.UpdatesPerSecond = value;
         }
-
-
-        private ConcurrentDictionary<int, byte[]> _frameCache = 
-            new ConcurrentDictionary<int, byte[]>();
-
-        private ConcurrentDictionary<int, byte[]> _jpegCache =
-            new ConcurrentDictionary<int, byte[]>();
 
         private int _frameIndex = 0;
         private object _frameIndexLock = new object();
@@ -43,14 +37,6 @@ namespace L4NdoStreamService.Entities
 
             this.FrameCount = frameCount;
             this.FramesPerSecond = framesPerSecond;
-
-            var tasks = new Task[FrameCount];
-            for (int i = 0; i < FrameCount; i++)
-            {
-                var index = i;
-                tasks[i] = Task.Run(() => this.GrabJpeg(index));
-            }
-            Task.WaitAll(tasks);
         }
 
         protected override Task Update()
@@ -70,64 +56,59 @@ namespace L4NdoStreamService.Entities
         public void PauseSource() =>
             this.StopUpdates();
 
-        public byte[] GrabFrame() =>
-            this.GrabFrame(this._frameIndex);
-        
-        public async Task<byte[]> GrabFrameAsync() =>
-            await Task.Run(this.GrabFrame);
 
-        public byte[] GrabJpegFrame() =>
-            this.GrabJpeg(this._frameIndex);
+        public byte[] GrabFile() =>
+            this.GrabFile(this._frameIndex);
+        public async Task<byte[]> GrabFileAsync() =>
+            await Task.Run(this.GrabFile);
 
-        private byte[] GrabFrame(int frameIndex)
+        public Bitmap GrabBitmap() =>
+            this.GrabBitmap(this._frameIndex);
+        public async Task<Bitmap> GrabBitmapAsync() =>
+            await Task.Run(this.GrabBitmap);
+
+        public byte[] GrabRgb() =>
+            this.GrabRgb(this._frameIndex);
+        public async Task<byte[]> GrabRgbAsync() =>
+            await Task.Run(this.GrabRgb);
+
+
+        private byte[] GrabFile(int frameIndex)
         {
-            if (this._frameCache.ContainsKey(frameIndex))
-            {
-                return this._frameCache[frameIndex];
-            }
-            else
-            {
-                var fileName = $"{this.Path}{this.Name}{frameIndex.ToString().PadLeft(4, '0')}.jpg";
-                byte[] frame = null;
-
-                using (Image image = Image.FromFile(fileName))
-                using (Bitmap bitmap = new Bitmap(image))
-                {
-                    var data = bitmap.LockBits(
-                        new Rectangle(0, 0, bitmap.Width, bitmap.Height), 
-                        System.Drawing.Imaging.ImageLockMode.ReadOnly, 
-                        System.Drawing.Imaging.PixelFormat.Format24bppRgb
-                    );
-                    try
-                    {
-                        IntPtr ptr = data.Scan0;
-                        int bytes = Math.Abs(data.Stride) * bitmap.Height;
-                        frame = new byte[bytes];
-                        Marshal.Copy(ptr, frame, 0, bytes);
-                    }
-                    finally
-                    {
-                        bitmap.UnlockBits(data);
-                    }
-                }
-
-                this._frameCache[frameIndex] = frame;
-                return frame;
-            }
+            var fileName = $"{this.Path}{this.Name}{frameIndex.ToString().PadLeft(4, '0')}.jpg";
+            byte[] jpeg = File.ReadAllBytes(fileName);
+            return jpeg;
         }
-        private byte[] GrabJpeg(int frameIndex)
+
+        private Bitmap GrabBitmap(int frameIndex)
         {
-            if (this._jpegCache.ContainsKey(frameIndex))
+            byte[] file = this.GrabFile(frameIndex);
+            using MemoryStream stream = new MemoryStream(file);
+            using Image image = Image.FromStream(stream);
+            return new Bitmap(image);
+        }
+
+        private byte[] GrabRgb(int frameIndex)
+        {
+            using Bitmap bitmap = this.GrabBitmap(frameIndex);
+            var data = bitmap.LockBits(
+                new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                ImageLockMode.ReadOnly,
+                PixelFormat.Format32bppArgb);
+
+            byte[] rgb;
+            try
             {
-                return this._jpegCache[frameIndex];
+                IntPtr ptr = data.Scan0;
+                int bytes = Math.Abs(data.Stride) * bitmap.Height;
+                rgb = new byte[bytes];
+                Marshal.Copy(ptr, rgb, 0, bytes);
             }
-            else
+            finally
             {
-                var fileName = $"{this.Path}{this.Name}{frameIndex.ToString().PadLeft(4, '0')}.jpg";
-                byte[] jpeg = File.ReadAllBytes(fileName);
-                this._jpegCache[frameIndex] = jpeg;
-                return jpeg;
+                bitmap.UnlockBits(data);
             }
+            return rgb;
         }
     }
 }

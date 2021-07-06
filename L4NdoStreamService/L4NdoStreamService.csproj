@@ -20,12 +20,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <COMReference Include="{d37e2a3e-8545-3a39-9f4f-31827c9124ab}">
-      <WrapperTool>tlbimp</WrapperTool>
-      <VersionMinor>4</VersionMinor>
-      <VersionMajor>2</VersionMajor>
-      <Guid>d37e2a3e-8545-3a39-9f4f-31827c9124ab</Guid>
-    </COMReference>
+    <None Remove="src\index.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="package.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,22 +32,313 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.MixedReality.WebRTC" Version="1.0.3" />
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="4.3.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
-      <HintPath>..\..\..\..\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</HintPath>
-    </Reference>
+    <TypeScriptCompile Include="node_modules\@types\glob\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\json-schema\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\minimatch\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\assert.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\assert\strict.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\async_hooks.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\base.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\buffer.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\child_process.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\cluster.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\console.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\constants.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\crypto.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\dgram.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\diagnostic_channel.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\dns.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\dns\promises.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\domain.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\events.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\fs.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\fs\promises.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\globals.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\globals.global.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\http.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\http2.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\https.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\inspector.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\module.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\net.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\os.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\path.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\perf_hooks.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\process.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\punycode.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\querystring.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\readline.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\repl.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\stream.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\stream\promises.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\string_decoder.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\timers.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\timers\promises.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\tls.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\trace_events.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\ts3.6\assert.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\ts3.6\base.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\ts3.6\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\tty.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\url.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\util.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\util\types.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\v8.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\vm.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\wasi.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\worker_threads.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\node\zlib.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\source-list-map\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\tapable\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\uglify-js\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\webpack-sources\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\webpack-sources\lib\CachedSource.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\webpack-sources\lib\CompatSource.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\webpack-sources\lib\ConcatSource.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\webpack-sources\lib\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\webpack-sources\lib\OriginalSource.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\webpack-sources\lib\PrefixSource.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\webpack-sources\lib\RawSource.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\webpack-sources\lib\ReplaceSource.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\webpack-sources\lib\SizeOnlySource.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\webpack-sources\lib\Source.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\webpack-sources\lib\SourceMapSource.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\webpack-sources\node_modules\source-map\source-map.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\webpack\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\@types\webpack\next.d.ts" />
+    <TypeScriptCompile Include="node_modules\@xtuc\long\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\acorn\dist\acorn.d.ts" />
+    <TypeScriptCompile Include="node_modules\ajv-keywords\ajv-keywords.d.ts" />
+    <TypeScriptCompile Include="node_modules\ajv\lib\ajv.d.ts" />
+    <TypeScriptCompile Include="node_modules\anymatch\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\base64-js\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\binary-extensions\binary-extensions.json.d.ts" />
+    <TypeScriptCompile Include="node_modules\binary-extensions\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\browserify-sign\node_modules\safe-buffer\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\camel-case\camel-case.d.ts" />
+    <TypeScriptCompile Include="node_modules\camelcase\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\chalk\types\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\chokidar\types\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\chrome-trace-event\dist\trace-event.d.ts" />
+    <TypeScriptCompile Include="node_modules\clean-webpack-plugin\dist\clean-webpack-plugin.d.ts" />
+    <TypeScriptCompile Include="node_modules\cliui\node_modules\strip-ansi\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\commander\typings\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\css-select\lib\attributes.d.ts" />
+    <TypeScriptCompile Include="node_modules\css-select\lib\compile.d.ts" />
+    <TypeScriptCompile Include="node_modules\css-select\lib\general.d.ts" />
+    <TypeScriptCompile Include="node_modules\css-select\lib\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\css-select\lib\procedure.d.ts" />
+    <TypeScriptCompile Include="node_modules\css-select\lib\pseudo-selectors\aliases.d.ts" />
+    <TypeScriptCompile Include="node_modules\css-select\lib\pseudo-selectors\filters.d.ts" />
+    <TypeScriptCompile Include="node_modules\css-select\lib\pseudo-selectors\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\css-select\lib\pseudo-selectors\pseudos.d.ts" />
+    <TypeScriptCompile Include="node_modules\css-select\lib\pseudo-selectors\subselects.d.ts" />
+    <TypeScriptCompile Include="node_modules\css-select\lib\sort.d.ts" />
+    <TypeScriptCompile Include="node_modules\css-select\lib\types.d.ts" />
+    <TypeScriptCompile Include="node_modules\css-what\lib\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\css-what\lib\parse.d.ts" />
+    <TypeScriptCompile Include="node_modules\css-what\lib\stringify.d.ts" />
+    <TypeScriptCompile Include="node_modules\del\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\dom-serializer\lib\foreignNames.d.ts" />
+    <TypeScriptCompile Include="node_modules\dom-serializer\lib\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\domelementtype\lib\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\domhandler\lib\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\domhandler\lib\node.d.ts" />
+    <TypeScriptCompile Include="node_modules\domutils\lib\helpers.d.ts" />
+    <TypeScriptCompile Include="node_modules\domutils\lib\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\domutils\lib\legacy.d.ts" />
+    <TypeScriptCompile Include="node_modules\domutils\lib\manipulation.d.ts" />
+    <TypeScriptCompile Include="node_modules\domutils\lib\querying.d.ts" />
+    <TypeScriptCompile Include="node_modules\domutils\lib\stringify.d.ts" />
+    <TypeScriptCompile Include="node_modules\domutils\lib\traversal.d.ts" />
+    <TypeScriptCompile Include="node_modules\emoji-regex\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\entities\lib\decode.d.ts" />
+    <TypeScriptCompile Include="node_modules\entities\lib\decode_codepoint.d.ts" />
+    <TypeScriptCompile Include="node_modules\entities\lib\encode.d.ts" />
+    <TypeScriptCompile Include="node_modules\entities\lib\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\extend-shallow\node_modules\is-extendable\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\fast-deep-equal\es6\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\fast-deep-equal\es6\react.d.ts" />
+    <TypeScriptCompile Include="node_modules\fast-deep-equal\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\fast-deep-equal\react.d.ts" />
+    <TypeScriptCompile Include="node_modules\fast-json-stable-stringify\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\get-caller-file\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\hash-base\node_modules\safe-buffer\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\hash.js\lib\hash.d.ts" />
+    <TypeScriptCompile Include="node_modules\htmlparser2\lib\CollectingHandler.d.ts" />
+    <TypeScriptCompile Include="node_modules\htmlparser2\lib\FeedHandler.d.ts" />
+    <TypeScriptCompile Include="node_modules\htmlparser2\lib\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\htmlparser2\lib\MultiplexHandler.d.ts" />
+    <TypeScriptCompile Include="node_modules\htmlparser2\lib\Parser.d.ts" />
+    <TypeScriptCompile Include="node_modules\htmlparser2\lib\Tokenizer.d.ts" />
+    <TypeScriptCompile Include="node_modules\htmlparser2\lib\WritableStream.d.ts" />
+    <TypeScriptCompile Include="node_modules\ieee754\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\is-binary-path\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\is-path-cwd\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\is-path-in-cwd\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\is-path-inside\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\is-plain-object\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\isobject\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\lower-case\lower-case.d.ts" />
+    <TypeScriptCompile Include="node_modules\make-dir\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\map-age-cleaner\dist\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\mem\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\mimic-fn\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\no-case\no-case.d.ts" />
+    <TypeScriptCompile Include="node_modules\nth-check\lib\compile.d.ts" />
+    <TypeScriptCompile Include="node_modules\nth-check\lib\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\nth-check\lib\parse.d.ts" />
+    <TypeScriptCompile Include="node_modules\p-is-promise\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\p-limit\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\p-map\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\p-try\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\param-case\param-case.d.ts" />
+    <TypeScriptCompile Include="node_modules\postcss-selector-parser\postcss-selector-parser.d.ts" />
+    <TypeScriptCompile Include="node_modules\postcss-value-parser\lib\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\postcss\lib\postcss.d.ts" />
+    <TypeScriptCompile Include="node_modules\pretty-error\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\readdirp\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\safe-buffer\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\schema-utils\declarations\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\schema-utils\declarations\keywords\absolutePath.d.ts" />
+    <TypeScriptCompile Include="node_modules\schema-utils\declarations\util\hints.d.ts" />
+    <TypeScriptCompile Include="node_modules\schema-utils\declarations\util\Range.d.ts" />
+    <TypeScriptCompile Include="node_modules\schema-utils\declarations\validate.d.ts" />
+    <TypeScriptCompile Include="node_modules\schema-utils\declarations\ValidationError.d.ts" />
+    <TypeScriptCompile Include="node_modules\source-map\source-map.d.ts" />
+    <TypeScriptCompile Include="node_modules\string-width\node_modules\strip-ansi\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\terser\node_modules\commander\typings\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\terser\tools\terser.d.ts" />
+    <TypeScriptCompile Include="node_modules\ts-loader\dist\after-compile.d.ts" />
+    <TypeScriptCompile Include="node_modules\ts-loader\dist\compilerSetup.d.ts" />
+    <TypeScriptCompile Include="node_modules\ts-loader\dist\config.d.ts" />
+    <TypeScriptCompile Include="node_modules\ts-loader\dist\constants.d.ts" />
+    <TypeScriptCompile Include="node_modules\ts-loader\dist\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\ts-loader\dist\instances.d.ts" />
+    <TypeScriptCompile Include="node_modules\ts-loader\dist\interfaces.d.ts" />
+    <TypeScriptCompile Include="node_modules\ts-loader\dist\logger.d.ts" />
+    <TypeScriptCompile Include="node_modules\ts-loader\dist\resolver.d.ts" />
+    <TypeScriptCompile Include="node_modules\ts-loader\dist\servicesHost.d.ts" />
+    <TypeScriptCompile Include="node_modules\ts-loader\dist\utils.d.ts" />
+    <TypeScriptCompile Include="node_modules\ts-loader\dist\watch-run.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.dom.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.dom.iterable.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2015.collection.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2015.core.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2015.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2015.generator.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2015.iterable.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2015.promise.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2015.proxy.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2015.reflect.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2015.symbol.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2015.symbol.wellknown.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2016.array.include.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2016.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2016.full.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2017.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2017.full.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2017.intl.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2017.object.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2017.sharedmemory.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2017.string.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2017.typedarrays.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2018.asyncgenerator.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2018.asynciterable.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2018.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2018.full.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2018.intl.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2018.promise.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2018.regexp.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2019.array.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2019.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2019.full.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2019.object.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2019.string.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2019.symbol.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2020.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2020.full.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2020.string.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es2020.symbol.wellknown.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es5.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.es6.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.esnext.array.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.esnext.asynciterable.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.esnext.bigint.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.esnext.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.esnext.full.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.esnext.intl.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.esnext.symbol.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.scripthost.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.webworker.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\lib.webworker.importscripts.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\protocol.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\tsserverlibrary.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\typescript.d.ts" />
+    <TypeScriptCompile Include="node_modules\typescript\lib\typescriptServices.d.ts" />
+    <TypeScriptCompile Include="node_modules\uglify-js\node_modules\commander\typings\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\upath\upath.d.ts" />
+    <TypeScriptCompile Include="node_modules\upper-case\upper-case.d.ts" />
+    <TypeScriptCompile Include="node_modules\uri-js\dist\es5\uri.all.d.ts" />
+    <TypeScriptCompile Include="node_modules\uri-js\dist\es5\uri.all.min.d.ts" />
+    <TypeScriptCompile Include="node_modules\uri-js\dist\esnext\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\uri-js\dist\esnext\regexps-iri.d.ts" />
+    <TypeScriptCompile Include="node_modules\uri-js\dist\esnext\regexps-uri.d.ts" />
+    <TypeScriptCompile Include="node_modules\uri-js\dist\esnext\schemes\http.d.ts" />
+    <TypeScriptCompile Include="node_modules\uri-js\dist\esnext\schemes\https.d.ts" />
+    <TypeScriptCompile Include="node_modules\uri-js\dist\esnext\schemes\mailto.d.ts" />
+    <TypeScriptCompile Include="node_modules\uri-js\dist\esnext\schemes\urn-uuid.d.ts" />
+    <TypeScriptCompile Include="node_modules\uri-js\dist\esnext\schemes\urn.d.ts" />
+    <TypeScriptCompile Include="node_modules\uri-js\dist\esnext\schemes\ws.d.ts" />
+    <TypeScriptCompile Include="node_modules\uri-js\dist\esnext\schemes\wss.d.ts" />
+    <TypeScriptCompile Include="node_modules\uri-js\dist\esnext\uri.d.ts" />
+    <TypeScriptCompile Include="node_modules\uri-js\dist\esnext\util.d.ts" />
+    <TypeScriptCompile Include="node_modules\webpack\declarations\plugins\BannerPlugin.d.ts" />
+    <TypeScriptCompile Include="node_modules\webpack\declarations\plugins\debug\ProfilingPlugin.d.ts" />
+    <TypeScriptCompile Include="node_modules\webpack\declarations\plugins\DllPlugin.d.ts" />
+    <TypeScriptCompile Include="node_modules\webpack\declarations\plugins\DllReferencePlugin.d.ts" />
+    <TypeScriptCompile Include="node_modules\webpack\declarations\plugins\HashedModuleIdsPlugin.d.ts" />
+    <TypeScriptCompile Include="node_modules\webpack\declarations\plugins\IgnorePlugin.d.ts" />
+    <TypeScriptCompile Include="node_modules\webpack\declarations\plugins\LoaderOptionsPlugin.d.ts" />
+    <TypeScriptCompile Include="node_modules\webpack\declarations\plugins\optimize\AggressiveSplittingPlugin.d.ts" />
+    <TypeScriptCompile Include="node_modules\webpack\declarations\plugins\optimize\LimitChunkCountPlugin.d.ts" />
+    <TypeScriptCompile Include="node_modules\webpack\declarations\plugins\optimize\MinChunkSizePlugin.d.ts" />
+    <TypeScriptCompile Include="node_modules\webpack\declarations\plugins\optimize\OccurrenceOrderChunkIdsPlugin.d.ts" />
+    <TypeScriptCompile Include="node_modules\webpack\declarations\plugins\optimize\OccurrenceOrderModuleIdsPlugin.d.ts" />
+    <TypeScriptCompile Include="node_modules\webpack\declarations\plugins\ProgressPlugin.d.ts" />
+    <TypeScriptCompile Include="node_modules\webpack\declarations\plugins\SourceMapDevToolPlugin.d.ts" />
+    <TypeScriptCompile Include="node_modules\webpack\declarations\plugins\WatchIgnorePlugin.d.ts" />
+    <TypeScriptCompile Include="node_modules\webpack\declarations\WebpackOptions.d.ts" />
+    <TypeScriptCompile Include="node_modules\worker-farm\index.d.ts" />
+    <TypeScriptCompile Include="node_modules\wrap-ansi\node_modules\strip-ansi\index.d.ts" />
+    <TypeScriptCompile Include="src\index.ts" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Libs\ffmpeg_gpl.exe">
+    <Content Update="package-lock.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Libs\ffmpeg_lgpl.exe">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="src\tsconfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Videoframes\colorshift_0000.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -950,5 +1240,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="npm run release" />
+  </Target>
 
 </Project>
