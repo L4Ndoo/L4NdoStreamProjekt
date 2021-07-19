@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
+using System.Collections.Generic;
 
 namespace L4NdoStreamClient
 {
@@ -14,7 +15,12 @@ namespace L4NdoStreamClient
                 .Build();
 
             PeerConnection webrtc = new PeerConnection();
-            await webrtc.InitializeAsync();
+            await webrtc.InitializeAsync(new PeerConnectionConfiguration
+            {
+                IceServers = new List<IceServer> {
+                    new IceServer{ Urls = { "stun:stun.l.google.com:19302" } }
+                }
+            });
             Console.WriteLine("Connection initialized.");
 
             webrtc.VideoTrackAdded += track =>

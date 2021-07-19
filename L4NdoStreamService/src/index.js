@@ -38,7 +38,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 require("./css/main.css");
 var signalR = require("@microsoft/signalr");
+console.log("v0");
 var video = document.getElementById('video');
+var button = document.getElementById('button');
 video.addEventListener('loadedmetadata', function () {
     console.log("Remote video videoWidth: " + this.videoWidth + "px,  videoHeight: " + this.videoHeight + "px");
 });
@@ -49,7 +51,13 @@ video.onresize = function () {
 var signalrConnection = new signalR.HubConnectionBuilder()
     .withUrl("/livestream")
     .build();
-var webrtcConnection = new RTCPeerConnection();
+var webrtcConnection = new RTCPeerConnection({
+    iceServers: [
+        {
+            urls: ['stun:stun.l.google.com:19302']
+        }
+    ],
+});
 webrtcConnection.addEventListener("icecandidate", function (event) { return __awaiter(void 0, void 0, void 0, function () {
     var candidate;
     return __generator(this, function (_a) {
@@ -64,8 +72,15 @@ webrtcConnection.addEventListener("icecandidate", function (event) { return __aw
         }
     });
 }); });
+webrtcConnection.addEventListener("iceconnectionstatechange", function (event) { return console.log("Ice-Connection:", event); });
+webrtcConnection.addEventListener("icegatheringstatechange", function (event) { return console.log("Ice-Gathering:", event); });
+webrtcConnection.addEventListener("datachannel", function (event) { return console.log("Datachannel:", event); });
+webrtcConnection.addEventListener("connectionstatechange", function (event) { return console.log("Connection:", event); });
+webrtcConnection.addEventListener("icecandidateerror", function (event) { return console.log("Candidate-Error:", event); });
+webrtcConnection.addEventListener("negotiationneeded", function (event) { return console.log("Negotiation:", event); });
+webrtcConnection.addEventListener("signalingstatechange", function (event) { return console.log("Signaling:", event); });
 webrtcConnection.addEventListener("track", function (event) {
-    console.log("TRACK FOUND: ", event.track);
+    console.log("TRACK FOUND: ", event);
     video.srcObject = null;
     video.srcObject = new MediaStream([event.track]);
 });
@@ -111,10 +126,22 @@ signalrConnection.start()
     .then(function () { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, signalrConnection.send("requestLivestream")];
+            case 0: return [4 /*yield*/, signalrConnection.send("RequestWebRtcConnection")];
             case 1:
                 _a.sent();
-                console.log("Livestream requested.");
+                console.log("Connection requested.");
+                button.addEventListener('click', function () { return __awaiter(void 0, void 0, void 0, function () {
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, signalrConnection.send("RequestLivestream")];
+                            case 1:
+                                _a.sent();
+                                console.log("Livestream requested.");
+                                return [2 /*return*/];
+                        }
+                    });
+                }); });
+                button.disabled = false;
                 return [2 /*return*/];
         }
     });

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Microsoft.MixedReality.WebRTC;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace L4NdoStreamService.Entities
             this._logger = logger;
         }
 
-        public async Task RequestLivestream()
+        public async Task RequestWebRtcConnection()
         {
             _logger.LogInformation("Livestream Request incoming.");
             this.DestroyLivestream();
@@ -28,21 +29,13 @@ namespace L4NdoStreamService.Entities
             // Initialize Connection
             PeerConnection connection = new PeerConnection();
             connection.RenegotiationNeeded += () => connection.CreateOffer();
-            await connection.InitializeAsync();
+            await connection.InitializeAsync(new PeerConnectionConfiguration
+            {
+                IceServers = new List<IceServer> {
+                    new IceServer{ Urls = { "stun:stun.l.google.com:19302" } }
+                }
+            });
             _logger.LogInformation("Connection initialized.");
-
-            // Add Video-Stream
-            Transceiver transceiver = connection.AddTransceiver(MediaKind.Video);
-            transceiver.DesiredDirection = Transceiver.Direction.SendOnly;
-            LocalVideoTrackInitConfig config = new LocalVideoTrackInitConfig { trackName = "" };
-            transceiver.LocalVideoTrack = LocalVideoTrack.CreateFromSource(this._renderer.VideoTrackSource, config);
-
-            // Add Audio-Stream
-            //Transceiver transceiver = connection.AddTransceiver(MediaKind.Audio);
-            //transceiver.DesiredDirection = Transceiver.Direction.SendReceive;
-            //LocalAudioTrackInitConfig config = new LocalAudioTrackInitConfig { trackName = "audiostream" };
-            //transceiver.LocalAudioTrack = LocalAudioTrack.CreateFromSource(await DeviceAudioTrackSource.CreateAsync(), config);
-            //_logger.LogInformation($"Videotrack added: {transceiver.StreamIDs.Aggregate("", (r, i) => r + i)}");
 
             // Create Offer
             var caller = Clients.Caller;
@@ -61,7 +54,24 @@ namespace L4NdoStreamService.Entities
             _logger.LogInformation("Offer created.");
 
             // Store webrtc object
-            Context.Items.Add("WebRtc", transceiver);
+            Context.Items.Add("WebRtc", connection);
+        }
+
+        public async Task RequestLivestream()
+        {
+            object temp;
+            bool connected = this.Context.Items.TryGetValue("WebRtc", out temp);
+            if (connected)
+            {
+                PeerConnection connection = (PeerConnection)temp;
+                Transceiver transceiver = connection.AddTransceiver(MediaKind.Video);
+                transceiver.DesiredDirection = Transceiver.Direction.SendOnly;
+                LocalVideoTrackInitConfig config = new LocalVideoTrackInitConfig { trackName = "" };
+                transceiver.LocalVideoTrack = LocalVideoTrack.CreateFromSource(this._renderer.VideoTrackSource, config);
+                _logger.LogInformation(".");
+            }
+            
+
         }
 
         public async Task SdpReceived(string sdp, string type)
@@ -73,8 +83,7 @@ namespace L4NdoStreamService.Entities
             bool connected = this.Context.Items.TryGetValue("WebRtc", out temp);
             if (connected)
             {
-                Transceiver transceiver = (Transceiver)temp;
-                PeerConnection connection = transceiver.PeerConnection;
+                PeerConnection connection = (PeerConnection)temp;
 
                 await connection.SetRemoteDescriptionAsync(message);
                 if (message.Type == SdpMessageType.Offer) { connection.CreateAnswer(); }
@@ -89,9 +98,7 @@ namespace L4NdoStreamService.Entities
             bool connected = this.Context.Items.TryGetValue("WebRtc", out temp);
             if (connected)
             {
-                Transceiver transceiver = (Transceiver)temp;
-                PeerConnection connection = transceiver.PeerConnection;
-
+                PeerConnection connection = (PeerConnection)temp;
                 connection.AddIceCandidate(iceCandidate);
             }
         }
@@ -102,10 +109,10 @@ namespace L4NdoStreamService.Entities
             bool connected = this.Context.Items.TryGetValue("WebRtc", out temp);
             if(connected)
             {
-                Transceiver transceiver = (Transceiver)temp;
+                PeerConnection connection = (PeerConnection)temp;
 
-                transceiver?.PeerConnection?.Close();
-                transceiver?.PeerConnection?.Dispose();
+                connection.Close();
+                connection.Dispose();
 
                 this.Context.Items.Remove("WebRtc");
             }
