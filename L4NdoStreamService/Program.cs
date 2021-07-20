@@ -1,11 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace L4NdoStreamService
 {
@@ -26,6 +21,7 @@ namespace L4NdoStreamService
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder
+                        .UseUrls(new string[] {"http://*:5000", "https://*:5001"})
                         .ConfigureLogging(logging =>
                         {
                             logging.ClearProviders();

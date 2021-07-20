@@ -1,11 +1,7 @@
-﻿using L4NdoStreamService.Entities;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Microsoft.MixedReality.WebRTC;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace L4NdoStreamService.Entities
@@ -21,102 +17,97 @@ namespace L4NdoStreamService.Entities
             this._logger = logger;
         }
 
-        public async Task RequestWebRtcConnection()
+        public async Task RequestLivestream()
         {
-            _logger.LogInformation("Livestream Request incoming.");
+            this._logger.LogInformation("Livestream Request incoming.");
             this.DestroyLivestream();
 
             // Initialize Connection
             PeerConnection connection = new PeerConnection();
-            connection.RenegotiationNeeded += () => connection.CreateOffer();
-            await connection.InitializeAsync(new PeerConnectionConfiguration
-            {
-                IceServers = new List<IceServer> {
-                    new IceServer{ Urls = { "stun:stun.l.google.com:19302" } }
+            await connection.InitializeAsync(new PeerConnectionConfiguration{
+                IceServers = new List<IceServer>{
+                    new IceServer{ Urls = new List<string>{ "stun:stun.l.google.com:19302" } }
                 }
             });
-            _logger.LogInformation("Connection initialized.");
+            WebRtc webRtc = new WebRtc(connection);
+            this._logger.LogInformation("Connection initialized.");
 
-            // Create Offer
+            // Add Videotrack
+            Transceiver transceiver = connection.AddTransceiver(MediaKind.Video);
+            transceiver.DesiredDirection = Transceiver.Direction.SendOnly;
+            LocalVideoTrackInitConfig config = new LocalVideoTrackInitConfig { trackName = "stream" };
+            transceiver.LocalVideoTrack = LocalVideoTrack.CreateFromSource(this._renderer.VideoTrackSource, config);
+            this._logger.LogInformation("Videotrack added.");
+
+            // Setup handlers
             var caller = Clients.Caller;
+            connection.Connected += () => this._logger.LogInformation("Connected");
+            connection.VideoTrackAdded += track => this._logger.LogInformation("Videotrack added: " + track.Name);
+            connection.IceGatheringStateChanged += args => this._logger.LogInformation($"IceGathering: {args}");
+            connection.IceStateChanged += args => this._logger.LogInformation($"IceState: {args}");
+            connection.RenegotiationNeeded += () =>
+            {
+                webRtc.MakingOffer = connection.CreateOffer();
+                this._logger.LogInformation("Renegotiation needed.");
+            };
             connection.LocalSdpReadytoSend += async message =>
             {
+                webRtc.MakingOffer = message.Type == SdpMessageType.Offer;
                 await caller.SendAsync("SdpReceived", message.Content, message.Type.ToString().ToLower());
-                _logger.LogInformation("SDP sent: " + message);
+                webRtc.MakingOffer = false;
+                this._logger.LogInformation("SDP sent: " + message);
             };
             connection.IceCandidateReadytoSend += async candidate =>
             {
                 await caller.SendAsync("IceReceived", candidate.Content, candidate.SdpMid, candidate.SdpMlineIndex);
-                _logger.LogInformation("ICE sent: " + candidate);
+                this._logger.LogInformation("ICE sent: " + candidate);
             };
 
+            // Store connection to process incoming messages and create offer
+            Context.Items.Add("WebRtc", webRtc);
             connection.CreateOffer();
-            _logger.LogInformation("Offer created.");
-
-            // Store webrtc object
-            Context.Items.Add("WebRtc", connection);
-        }
-
-        public async Task RequestLivestream()
-        {
-            object temp;
-            bool connected = this.Context.Items.TryGetValue("WebRtc", out temp);
-            if (connected)
-            {
-                PeerConnection connection = (PeerConnection)temp;
-                Transceiver transceiver = connection.AddTransceiver(MediaKind.Video);
-                transceiver.DesiredDirection = Transceiver.Direction.SendOnly;
-                LocalVideoTrackInitConfig config = new LocalVideoTrackInitConfig { trackName = "" };
-                transceiver.LocalVideoTrack = LocalVideoTrack.CreateFromSource(this._renderer.VideoTrackSource, config);
-                _logger.LogInformation(".");
-            }
-            
-
+            this._logger.LogInformation("Offer created.");
         }
 
         public async Task SdpReceived(string sdp, string type)
         {
             SdpMessage message = new SdpMessage { Content = sdp, Type = type == "offer" ? SdpMessageType.Offer : SdpMessageType.Answer };
-            _logger.LogInformation("SDP received: " + type);
+            this._logger.LogInformation("SDP received: " + type);
 
-            object temp;
-            bool connected = this.Context.Items.TryGetValue("WebRtc", out temp);
-            if (connected)
+            if (this.Context.Items.TryGetValue("WebRtc", out object temp))
             {
-                PeerConnection connection = (PeerConnection)temp;
+                WebRtc webRtc = (WebRtc)temp;
+                if(message.Type == SdpMessageType.Offer && webRtc.MakingOffer) { return; }
 
-                await connection.SetRemoteDescriptionAsync(message);
-                if (message.Type == SdpMessageType.Offer) { connection.CreateAnswer(); }
+                await webRtc.Connection.SetRemoteDescriptionAsync(message);
+                if (message.Type == SdpMessageType.Offer) { webRtc.Connection.CreateAnswer(); }
             }
         }
 
         public void IceReceived(string candidate, string sdpMid, int sdpMLineIndex)
         {
-            IceCandidate iceCandidate = new IceCandidate { Content = candidate, SdpMid = sdpMid, SdpMlineIndex = sdpMLineIndex };
-            _logger.LogInformation("ICE received: " + candidate);
-            object temp;
-            bool connected = this.Context.Items.TryGetValue("WebRtc", out temp);
-            if (connected)
+            if (candidate != null && this.Context.Items.TryGetValue("WebRtc", out object temp))
             {
-                PeerConnection connection = (PeerConnection)temp;
-                connection.AddIceCandidate(iceCandidate);
+                this._logger.LogInformation("ICE received: " + candidate);
+                IceCandidate iceCandidate = new IceCandidate { Content = candidate, SdpMid = sdpMid, SdpMlineIndex = sdpMLineIndex };
+
+                WebRtc webRtc = (WebRtc)temp;
+                webRtc.Connection.AddIceCandidate(iceCandidate);
             }
         }
 
         public void DestroyLivestream()
         {
-            object temp;
-            bool connected = this.Context.Items.TryGetValue("WebRtc", out temp);
-            if(connected)
+            if(this.Context.Items.TryGetValue("WebRtc", out object temp))
             {
-                PeerConnection connection = (PeerConnection)temp;
+                WebRtc webRtc = (WebRtc)temp;
 
-                connection.Close();
-                connection.Dispose();
+                webRtc.Connection.Close();
+                webRtc.Connection.Dispose();
 
                 this.Context.Items.Remove("WebRtc");
             }
-            _logger.LogInformation("Livestream destroyed.");
+            this._logger.LogInformation("Livestream destroyed.");
         }
     }
 }

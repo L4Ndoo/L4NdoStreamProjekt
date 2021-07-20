@@ -38,72 +38,98 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 require("./css/main.css");
 var signalR = require("@microsoft/signalr");
-console.log("v0");
+console.log("v0.0.2");
 var video = document.getElementById('video');
-var button = document.getElementById('button');
-video.addEventListener('loadedmetadata', function () {
-    console.log("Remote video videoWidth: " + this.videoWidth + "px,  videoHeight: " + this.videoHeight + "px");
-});
-video.onresize = function () {
-    console.log("Remote video size changed to " + video.videoWidth + "x" + video.videoHeight);
-    console.warn('RESIZE', video.videoWidth, video.videoHeight);
-};
+video.loadedmetadata = function () { return console.log("Remote video videoWidth: " + video.videoWidth + "px,  videoHeight: " + video.videoHeight + "px"); };
+;
+video.onresize = function () { return console.log("Remote video size changed to " + video.videoWidth + "x" + video.videoHeight); };
 var signalrConnection = new signalR.HubConnectionBuilder()
     .withUrl("/livestream")
     .build();
 var webrtcConnection = new RTCPeerConnection({
-    iceServers: [
-        {
-            urls: ['stun:stun.l.google.com:19302']
-        }
-    ],
+    iceServers: [{
+            urls: ["stun:stun.l.google.com:19302"]
+        }]
 });
-webrtcConnection.addEventListener("icecandidate", function (event) { return __awaiter(void 0, void 0, void 0, function () {
-    var candidate;
+var iceRestart = false;
+webrtcConnection.onicecandidate = function (event) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                candidate = event.candidate.toJSON();
-                return [4 /*yield*/, signalrConnection.send("iceReceived", candidate.candidate, candidate.sdpMid, candidate.sdpMLineIndex)];
+                if (!event.candidate) return [3 /*break*/, 2];
+                return [4 /*yield*/, signalrConnection.send("iceReceived", event.candidate.candidate, event.candidate.sdpMid, event.candidate.sdpMLineIndex)];
             case 1:
                 _a.sent();
-                console.log("ICE sent: ", candidate);
+                console.log("ICE sent: ", event.candidate);
+                _a.label = 2;
+            case 2: return [2 /*return*/];
+        }
+    });
+}); };
+webrtcConnection.onnegotiationneeded = function (event) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                _b = (_a = webrtcConnection).setLocalDescription;
+                return [4 /*yield*/, webrtcConnection.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: false, iceRestart: iceRestart })];
+            case 1: return [4 /*yield*/, _b.apply(_a, [_c.sent()])];
+            case 2:
+                _c.sent();
+                return [4 /*yield*/, signalrConnection.send("sdpReceived", webrtcConnection.localDescription.sdp, webrtcConnection.localDescription.type)];
+            case 3:
+                _c.sent();
+                console.log("Renegotiation handled.");
+                iceRestart = false;
                 return [2 /*return*/];
         }
     });
-}); });
-webrtcConnection.addEventListener("iceconnectionstatechange", function (event) { return console.log("Ice-Connection:", event); });
-webrtcConnection.addEventListener("icegatheringstatechange", function (event) { return console.log("Ice-Gathering:", event); });
-webrtcConnection.addEventListener("datachannel", function (event) { return console.log("Datachannel:", event); });
-webrtcConnection.addEventListener("connectionstatechange", function (event) { return console.log("Connection:", event); });
-webrtcConnection.addEventListener("icecandidateerror", function (event) { return console.log("Candidate-Error:", event); });
-webrtcConnection.addEventListener("negotiationneeded", function (event) { return console.log("Negotiation:", event); });
-webrtcConnection.addEventListener("signalingstatechange", function (event) { return console.log("Signaling:", event); });
-webrtcConnection.addEventListener("track", function (event) {
-    console.log("TRACK FOUND: ", event);
-    video.srcObject = null;
-    video.srcObject = new MediaStream([event.track]);
-});
+}); };
+webrtcConnection.oniceconnectionstatechange = function (event) {
+    if (webrtcConnection.iceConnectionState == "failed") {
+        iceRestart = true;
+    }
+    console.log("Ice-Connection:", webrtcConnection.iceConnectionState);
+};
+webrtcConnection.onicegatheringstatechange = function (event) { return console.log("Ice-Gathering:", webrtcConnection.iceGatheringState); };
+webrtcConnection.ondatachannel = function (event) { return console.log("Datachannel:", event); };
+webrtcConnection.onconnectionstatechange = function (event) { return console.log("Connection:", webrtcConnection.connectionState); };
+webrtcConnection.onicecandidateerror = function (event) { return console.log("Candidate-Error:", event); };
+webrtcConnection.onsignalingstatechange = function (event) { return console.log("Signaling:", webrtcConnection.signalingState); };
+webrtcConnection.ontrack = function (event) {
+    console.log("TRACK FOUND: ", event.track);
+    event.track.onunmute = function (evt) {
+        console.log("TRACK UNMUTED: ", evt.target, event.track);
+        if (video.srcObject) {
+            return;
+        }
+        var stream = new MediaStream();
+        stream.addTrack(event.track);
+        video.srcObject = stream;
+    };
+};
 signalrConnection.on("sdpReceived", function (sdp, type) { return __awaiter(void 0, void 0, void 0, function () {
-    var message, answer;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var message, _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
                 message = { sdp: sdp, type: type };
                 console.log("SDP received: ", message);
                 return [4 /*yield*/, webrtcConnection.setRemoteDescription(message)];
             case 1:
-                _a.sent();
-                if (!(message.type == "offer")) return [3 /*break*/, 4];
-                return [4 /*yield*/, webrtcConnection.createAnswer()];
-            case 2:
-                answer = _a.sent();
-                return [4 /*yield*/, signalrConnection.send("sdpReceived", answer.sdp, answer.type)];
+                _c.sent();
+                if (!(message.type == "offer")) return [3 /*break*/, 5];
+                _b = (_a = webrtcConnection).setLocalDescription;
+                return [4 /*yield*/, webrtcConnection.createAnswer({ offerToReceiveVideo: true, offerToReceiveAudio: false, iceRestart: iceRestart })];
+            case 2: return [4 /*yield*/, _b.apply(_a, [_c.sent()])];
             case 3:
-                _a.sent();
-                console.log("SDP sent: ", answer);
-                _a.label = 4;
-            case 4: return [2 /*return*/];
+                _c.sent();
+                return [4 /*yield*/, signalrConnection.send("sdpReceived", webrtcConnection.localDescription.sdp, webrtcConnection.localDescription.type)];
+            case 4:
+                _c.sent();
+                console.log("SDP sent: ", webrtcConnection.localDescription);
+                _c.label = 5;
+            case 5: return [2 /*return*/];
         }
     });
 }); });
@@ -112,12 +138,14 @@ signalrConnection.on("iceReceived", function (candidate, sdpMid, sdpMLineIndex) 
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
+                if (!(candidate != null)) return [3 /*break*/, 2];
                 iceCandidate = { candidate: candidate, sdpMid: sdpMid, sdpMLineIndex: sdpMLineIndex };
-                console.log("ICE received: ", iceCandidate);
                 return [4 /*yield*/, webrtcConnection.addIceCandidate(iceCandidate)];
             case 1:
                 _a.sent();
-                return [2 /*return*/];
+                console.log("ICE received: ", iceCandidate);
+                _a.label = 2;
+            case 2: return [2 /*return*/];
         }
     });
 }); });
@@ -126,22 +154,10 @@ signalrConnection.start()
     .then(function () { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, signalrConnection.send("RequestWebRtcConnection")];
+            case 0: return [4 /*yield*/, signalrConnection.send("RequestLivestream")];
             case 1:
                 _a.sent();
-                console.log("Connection requested.");
-                button.addEventListener('click', function () { return __awaiter(void 0, void 0, void 0, function () {
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0: return [4 /*yield*/, signalrConnection.send("RequestLivestream")];
-                            case 1:
-                                _a.sent();
-                                console.log("Livestream requested.");
-                                return [2 /*return*/];
-                        }
-                    });
-                }); });
-                button.disabled = false;
+                console.log("Livestream requested.");
                 return [2 /*return*/];
         }
     });
