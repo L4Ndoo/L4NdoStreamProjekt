@@ -1,13 +1,11 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace L4NdoStreamService.Entities
 {
-    public class FrameSource : BackgroundUpdater
+    public class ImageFrameSource : BackgroundUpdater, IFrameSource
     {
         public string Path { get; set; }
         public string FileName { get; set; }
@@ -21,12 +19,13 @@ namespace L4NdoStreamService.Entities
 
         private int _frameIndex = 0;
 
-        public FrameSource(string path, string fileName, int frameCount = 1, int framesPerSecond = 30)
+        public ImageFrameSource(string path, string fileName, int frameCount = 1, int framesPerSecond = 30)
         {
             this.Path = path;
             this.FileName = fileName;
             this.FrameCount = frameCount;
             this.FramesPerSecond = framesPerSecond;
+            this.PlaySource();
         }
 
         protected override Task Update()
@@ -52,8 +51,8 @@ namespace L4NdoStreamService.Entities
         public async Task<Bitmap> GrabBitmapAsync() =>
             await Task.Run(this.GrabBitmap);
 
-        public async Task<byte[]> GrabRgbAsync() =>
-            await Task.Run(this.GrabRgb);
+        public async Task<BitmapData> GrabArgbAsync() =>
+            await Task.Run(this.GrabArgb);
 
 
         public Bitmap GrabBitmap()
@@ -64,27 +63,16 @@ namespace L4NdoStreamService.Entities
             return new Bitmap(image);
         }
 
-        public byte[] GrabRgb()
+        public BitmapData GrabArgb()
         {
             using Bitmap bitmap = this.GrabBitmap();
+
             var data = bitmap.LockBits(
                 new Rectangle(0, 0, bitmap.Width, bitmap.Height),
                 ImageLockMode.ReadOnly,
                 PixelFormat.Format32bppArgb);
 
-            byte[] rgb;
-            try
-            {
-                IntPtr ptr = data.Scan0;
-                int bytes = Math.Abs(data.Stride) * bitmap.Height;
-                rgb = new byte[bytes];
-                Marshal.Copy(ptr, rgb, 0, bytes);
-            }
-            finally
-            {
-                bitmap.UnlockBits(data);
-            }
-            return rgb;
+            return data;
         }
     }
 }

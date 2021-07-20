@@ -1,4 +1,5 @@
 using L4NdoStreamService.Entities;
+using L4NdoStreamService.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,12 +23,14 @@ namespace L4NdoStreamService
             services.AddSignalR();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime ltm, WebRtcRenderer renderer)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            ltm.ApplicationStopping.Register(renderer.Dispose);
 
             app.UseCors(x => x
                 .AllowAnyOrigin()

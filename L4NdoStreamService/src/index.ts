@@ -11,11 +11,7 @@ const signalrConnection = new signalR.HubConnectionBuilder()
     .withUrl("/livestream")
     .build();
 
-const webrtcConnection = new RTCPeerConnection({
-    iceServers: [{
-        urls: ["stun:stun.l.google.com:19302"]
-    }]
-});
+const webrtcConnection = new RTCPeerConnection({iceServers: [{ urls: ['stun:stun.l.google.com:19302']}]});
 
 let iceRestart: boolean = false;
 

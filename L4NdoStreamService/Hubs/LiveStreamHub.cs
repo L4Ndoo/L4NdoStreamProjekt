@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using L4NdoStreamService.Entities;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Microsoft.MixedReality.WebRTC;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace L4NdoStreamService.Entities
+namespace L4NdoStreamService.Hubs
 {
     public class LiveStreamHub : Hub
     {
@@ -24,12 +26,8 @@ namespace L4NdoStreamService.Entities
 
             // Initialize Connection
             PeerConnection connection = new PeerConnection();
-            await connection.InitializeAsync(new PeerConnectionConfiguration{
-                IceServers = new List<IceServer>{
-                    new IceServer{ Urls = new List<string>{ "stun:stun.l.google.com:19302" } }
-                }
-            });
-            WebRtc webRtc = new WebRtc(connection);
+            await connection.InitializeAsync(new PeerConnectionConfiguration { IceServers = new List<IceServer> { new IceServer { Urls = new List<string> { "stun:stun.l.google.com:19302" } } } });
+            WebrtcConnection webRtc = new WebrtcConnection(connection);
             this._logger.LogInformation("Connection initialized.");
 
             // Add Videotrack
@@ -76,7 +74,7 @@ namespace L4NdoStreamService.Entities
 
             if (this.Context.Items.TryGetValue("WebRtc", out object temp))
             {
-                WebRtc webRtc = (WebRtc)temp;
+                WebrtcConnection webRtc = (WebrtcConnection)temp;
                 if(message.Type == SdpMessageType.Offer && webRtc.MakingOffer) { return; }
 
                 await webRtc.Connection.SetRemoteDescriptionAsync(message);
@@ -91,16 +89,22 @@ namespace L4NdoStreamService.Entities
                 this._logger.LogInformation("ICE received: " + candidate);
                 IceCandidate iceCandidate = new IceCandidate { Content = candidate, SdpMid = sdpMid, SdpMlineIndex = sdpMLineIndex };
 
-                WebRtc webRtc = (WebRtc)temp;
+                WebrtcConnection webRtc = (WebrtcConnection)temp;
                 webRtc.Connection.AddIceCandidate(iceCandidate);
             }
+        }
+
+        public override Task OnDisconnectedAsync(Exception exception)
+        {
+            this.DestroyLivestream();
+            return base.OnDisconnectedAsync(exception);
         }
 
         public void DestroyLivestream()
         {
             if(this.Context.Items.TryGetValue("WebRtc", out object temp))
             {
-                WebRtc webRtc = (WebRtc)temp;
+                WebrtcConnection webRtc = (WebrtcConnection)temp;
 
                 webRtc.Connection.Close();
                 webRtc.Connection.Dispose();

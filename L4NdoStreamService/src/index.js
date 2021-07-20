@@ -46,11 +46,7 @@ video.onresize = function () { return console.log("Remote video size changed to 
 var signalrConnection = new signalR.HubConnectionBuilder()
     .withUrl("/livestream")
     .build();
-var webrtcConnection = new RTCPeerConnection({
-    iceServers: [{
-            urls: ["stun:stun.l.google.com:19302"]
-        }]
-});
+var webrtcConnection = new RTCPeerConnection({ iceServers: [{ urls: ['stun:stun.l.google.com:19302'] }] });
 var iceRestart = false;
 webrtcConnection.onicecandidate = function (event) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {

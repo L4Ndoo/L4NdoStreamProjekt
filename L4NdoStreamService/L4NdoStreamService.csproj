@@ -41,6 +41,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Basler.Pylon">
+      <HintPath>Libraries\Basler.Pylon.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <TypeScriptCompile Include="node_modules\@types\glob\index.d.ts" />
     <TypeScriptCompile Include="node_modules\@types\json-schema\index.d.ts" />
     <TypeScriptCompile Include="node_modules\@types\minimatch\index.d.ts" />
@@ -339,6 +345,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Libraries\Basler.Pylon.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Videoframes\colorshift_0000.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
