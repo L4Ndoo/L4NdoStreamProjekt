@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace L4NdoStreamService.Entities
+namespace L4NdoStreamService.Utilities
 {
     public abstract class BackgroundUpdater: IDisposable
     {

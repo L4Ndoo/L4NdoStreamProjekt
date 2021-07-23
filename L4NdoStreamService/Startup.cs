@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace L4NdoStreamService
 {
@@ -17,20 +19,30 @@ namespace L4NdoStreamService
                        .AllowAnyMethod()
                        .AllowAnyHeader();
             }));
-
-            // Add WebRtcRenderer and SignalR as signaling server
-            services.AddSingleton(typeof(WebRtcRenderer));
+            services.AddSingleton(new ConcurrentDictionary<string, WebRtcRenderer>(new Dictionary<string, WebRtcRenderer>
+            {
+                { "basler", null },
+                { "emulator", null },
+                { "ids", null },
+                { "image", null },
+            }));
             services.AddSignalR();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime ltm, WebRtcRenderer renderer)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime ltm, ConcurrentDictionary<string, WebRtcRenderer> renderers)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
-            ltm.ApplicationStopping.Register(renderer.Dispose);
+            ltm.ApplicationStopping.Register(() =>
+            {
+                foreach(WebRtcRenderer renderer in renderers.Values)
+                {
+                    renderer.Dispose();
+                }
+            });
 
             app.UseCors(x => x
                 .AllowAnyOrigin()

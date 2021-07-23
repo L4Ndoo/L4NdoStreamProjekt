@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -43,6 +43,9 @@
   <ItemGroup>
     <Reference Include="Basler.Pylon">
       <HintPath>Libraries\Basler.Pylon.dll</HintPath>
+    </Reference>
+    <Reference Include="uEyeDotNet">
+      <HintPath>Libraries\uEyeDotNet.dll</HintPath>
     </Reference>
   </ItemGroup>
 
@@ -346,6 +349,12 @@
 
   <ItemGroup>
     <None Update="Libraries\Basler.Pylon.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Libraries\idsconfig.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Libraries\uEyeDotNet.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Videoframes\colorshift_0000.jpg">

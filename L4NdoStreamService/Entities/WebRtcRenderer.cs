@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Drawing.Imaging;
-using Basler.Pylon;
-using Microsoft.Extensions.Logging;
+using L4NdoStreamService.Entities.FrameSource;
 using Microsoft.MixedReality.WebRTC;
 
 namespace L4NdoStreamService.Entities
@@ -10,20 +9,20 @@ namespace L4NdoStreamService.Entities
     {
         public ExternalVideoTrackSource VideoTrackSource { get; private set; }
 
-        private IFrameSource _frameSource;
+        public readonly IFrameSource FrameSource;
 
-        public WebRtcRenderer(ILogger<WebRtcRenderer> logger)
+        public WebRtcRenderer(IFrameSource frameSource)
         {
-            this._frameSource = new ImageFrameSource(".\\Videoframes\\", "colorshift_", 300, 30);
+            this.FrameSource = frameSource;
             this.VideoTrackSource = ExternalVideoTrackSource.CreateFromArgb32Callback(FrameCallback);
         }
 
         private void FrameCallback(in FrameRequest request)
         {
-            BitmapData data = this._frameSource.GrabArgb();
+            BitmapData data = this.FrameSource.GrabArgb();
             if(data != null)
             {
-                Argb32VideoFrame frame = new Argb32VideoFrame
+                Argb32VideoFrame frame = new ()
                 {
                     data = data.Scan0,
                     height = (uint)data.Height,
@@ -36,7 +35,7 @@ namespace L4NdoStreamService.Entities
 
         public void Dispose()
         {
-            this._frameSource.Dispose();
+            this.FrameSource.Dispose();
         }
     }
 }

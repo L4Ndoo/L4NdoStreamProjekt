@@ -2,10 +2,11 @@
 using System.Drawing.Imaging;
 using System.Threading.Tasks;
 
-namespace L4NdoStreamService.Entities
+namespace L4NdoStreamService.Entities.FrameSource
 {
-    interface IFrameSource : IDisposable
+    public interface IFrameSource : IDisposable
     {
+        public float Scale { get; set; }
         public BitmapData GrabArgb();
         public Task<BitmapData> GrabArgbAsync();
     }

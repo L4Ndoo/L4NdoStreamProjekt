@@ -1,12 +1,15 @@
-﻿using System.Drawing;
+﻿using L4NdoStreamService.Utilities;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace L4NdoStreamService.Entities
+namespace L4NdoStreamService.Entities.FrameSource
 {
     public class ImageFrameSource : BackgroundUpdater, IFrameSource
     {
+        public float Scale { get; set; } = 1;
+
         public string Path { get; set; }
         public string FileName { get; set; }
 
@@ -18,6 +21,7 @@ namespace L4NdoStreamService.Entities
         }
 
         private int _frameIndex = 0;
+        private Bitmap _lastFrame = null;
 
         public ImageFrameSource(string path, string fileName, int frameCount = 1, int framesPerSecond = 30)
         {
@@ -44,31 +48,26 @@ namespace L4NdoStreamService.Entities
             byte[] jpeg = File.ReadAllBytes(fileName);
             return jpeg;
         }
-
-        public async Task<byte[]> GrabFileAsync() =>
-            await Task.Run(this.GrabFile);
-
-        public async Task<Bitmap> GrabBitmapAsync() =>
-            await Task.Run(this.GrabBitmap);
+        public Bitmap GrabBitmap()
+        {
+            byte[] file = this.GrabFile();
+            using MemoryStream stream = new (file);
+            using Image image = Image.FromStream(stream);
+            return new (image);
+        }
 
         public async Task<BitmapData> GrabArgbAsync() =>
             await Task.Run(this.GrabArgb);
 
-
-        public Bitmap GrabBitmap()
-        {
-            byte[] file = this.GrabFile();
-            using MemoryStream stream = new MemoryStream(file);
-            using Image image = Image.FromStream(stream);
-            return new Bitmap(image);
-        }
-
         public BitmapData GrabArgb()
         {
-            using Bitmap bitmap = this.GrabBitmap();
+            this._lastFrame?.Dispose();
+            using Bitmap image = this.GrabBitmap();
+            this._lastFrame = new (image, (int)(image.Width * this.Scale), (int)(image.Height * this.Scale));
+            
 
-            var data = bitmap.LockBits(
-                new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+            BitmapData data = this._lastFrame.LockBits(
+                new (0, 0, this._lastFrame.Width, this._lastFrame.Height),
                 ImageLockMode.ReadOnly,
                 PixelFormat.Format32bppArgb);
 
