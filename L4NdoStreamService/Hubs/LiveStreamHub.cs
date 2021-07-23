@@ -110,6 +110,7 @@ namespace L4NdoStreamService.Hubs
                         ? new BaslerFrameSource()
                         : new IdsFrameSource()
                     );
+                    renderer.NewFrametime += time => this._logger.LogInformation($"Frametime {stream}: {time}");
                     this._renderers[stream] = renderer;
                 }
 

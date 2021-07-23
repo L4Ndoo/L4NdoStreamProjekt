@@ -40,7 +40,7 @@ namespace L4NdoStreamService
             {
                 foreach(WebRtcRenderer renderer in renderers.Values)
                 {
-                    renderer.Dispose();
+                    renderer?.Dispose();
                 }
             });
 

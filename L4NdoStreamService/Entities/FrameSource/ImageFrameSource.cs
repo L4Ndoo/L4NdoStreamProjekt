@@ -41,28 +41,13 @@ namespace L4NdoStreamService.Entities.FrameSource
         public void PauseSource() =>
             this.StopUpdates();
 
-
-        public byte[] GrabFile()
-        {
-            var fileName = $"{this.Path}{this.FileName}{this._frameIndex.ToString().PadLeft(4, '0')}.jpg";
-            byte[] jpeg = File.ReadAllBytes(fileName);
-            return jpeg;
-        }
-        public Bitmap GrabBitmap()
-        {
-            byte[] file = this.GrabFile();
-            using MemoryStream stream = new (file);
-            using Image image = Image.FromStream(stream);
-            return new (image);
-        }
-
         public async Task<BitmapData> GrabArgbAsync() =>
             await Task.Run(this.GrabArgb);
 
         public BitmapData GrabArgb()
         {
             this._lastFrame?.Dispose();
-            using Bitmap image = this.GrabBitmap();
+            using Image image = Image.FromFile($"{this.Path}{this.FileName}{this._frameIndex.ToString().PadLeft(4, '0')}.jpg");
             this._lastFrame = new (image, (int)(image.Width * this.Scale), (int)(image.Height * this.Scale));
             
 
