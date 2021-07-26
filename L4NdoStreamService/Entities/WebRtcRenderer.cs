@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.Drawing.Imaging;
 using L4NdoStreamService.Entities.FrameSource;
 using Microsoft.MixedReality.WebRTC;
@@ -32,9 +33,11 @@ namespace L4NdoStreamService.Entities
         {
             if(_timer == null) { this._timer = Stopwatch.StartNew(); }
 
-            BitmapData data = this.FrameSource.GrabArgb();
-            if(data != null)
+            using Bitmap bitmap = this.FrameSource.GrabArgb();
+
+            if(bitmap != null)
             {
+                BitmapData data = bitmap.LockBits(new(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
                 Argb32VideoFrame frame = new ()
                 {
                     data = data.Scan0,
@@ -43,6 +46,7 @@ namespace L4NdoStreamService.Entities
                     stride = data.Stride
                 };
                 request.CompleteRequest(frame);
+                bitmap.UnlockBits(data);
             }
         }
 

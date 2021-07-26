@@ -1,7 +1,5 @@
 ﻿using L4NdoStreamService.Utilities;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace L4NdoStreamService.Entities.FrameSource
@@ -21,7 +19,6 @@ namespace L4NdoStreamService.Entities.FrameSource
         }
 
         private int _frameIndex = 0;
-        private Bitmap _lastFrame = null;
 
         public ImageFrameSource(string path, string fileName, int frameCount = 1, int framesPerSecond = 30)
         {
@@ -41,22 +38,13 @@ namespace L4NdoStreamService.Entities.FrameSource
         public void PauseSource() =>
             this.StopUpdates();
 
-        public async Task<BitmapData> GrabArgbAsync() =>
+        public async Task<Bitmap> GrabArgbAsync() =>
             await Task.Run(this.GrabArgb);
 
-        public BitmapData GrabArgb()
+        public Bitmap GrabArgb()
         {
-            this._lastFrame?.Dispose();
             using Image image = Image.FromFile($"{this.Path}{this.FileName}{this._frameIndex.ToString().PadLeft(4, '0')}.jpg");
-            this._lastFrame = new (image, (int)(image.Width * this.Scale), (int)(image.Height * this.Scale));
-            
-
-            BitmapData data = this._lastFrame.LockBits(
-                new (0, 0, this._lastFrame.Width, this._lastFrame.Height),
-                ImageLockMode.ReadOnly,
-                PixelFormat.Format32bppArgb);
-
-            return data;
+            return new Bitmap(image, (int)(image.Width * this.Scale), (int)(image.Height * this.Scale));
         }
     }
 }

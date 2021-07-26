@@ -1,6 +1,5 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -14,7 +13,6 @@ namespace L4NdoStreamService.Entities.FrameSource
 
         private readonly Camera _camera;
         private Bitmap _currentImage;
-        private Bitmap _lastGrabbed;
         private object _imagelock = new ();
         public BaslerFrameSource(bool emulator = false)
         {
@@ -51,10 +49,10 @@ namespace L4NdoStreamService.Entities.FrameSource
             }
         }
 
-        public async Task<BitmapData> GrabArgbAsync() =>
+        public async Task<Bitmap> GrabArgbAsync() =>
             await Task.Run(this.GrabArgb);
 
-        public BitmapData GrabArgb()
+        public Bitmap GrabArgb()
         {
             if(this._currentImage != null)
             {
@@ -69,22 +67,14 @@ namespace L4NdoStreamService.Entities.FrameSource
                 gr.DrawImage(currentImage, new Rectangle(0, 0, converted.Width, converted.Height));
                 currentImage.Dispose();
 
-                this._lastGrabbed?.Dispose();
-                this._lastGrabbed = new Bitmap(converted, (int)(converted.Width * this.Scale), (int)(converted.Height * this.Scale));
-
-                BitmapData data = this._lastGrabbed.LockBits(
-                    new Rectangle(0, 0, this._lastGrabbed.Width, this._lastGrabbed.Height),
-                    ImageLockMode.ReadOnly,
-                    PixelFormat.Format32bppArgb);
-
-                return data;
+                return new Bitmap(converted, (int)(converted.Width * this.Scale), (int)(converted.Height * this.Scale));
             }
             else { return null; }
         }
 
         public void Dispose()
         {
-            this._lastGrabbed?.Dispose();
+            this._currentImage?.Dispose();
             this._camera.Close();
             this._camera.Dispose();
         }

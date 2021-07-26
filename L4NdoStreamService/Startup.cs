@@ -25,6 +25,7 @@ namespace L4NdoStreamService
                 { "emulator", null },
                 { "ids", null },
                 { "image", null },
+                { "webcam", null },
             }));
             services.AddSignalR();
         }

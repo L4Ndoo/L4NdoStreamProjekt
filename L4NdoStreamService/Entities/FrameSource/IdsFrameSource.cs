@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.Threading.Tasks;
 using uEye;
@@ -75,7 +74,6 @@ namespace L4NdoStreamService.Entities.FrameSource
         }
 
         private readonly Camera _camera;
-        private Bitmap _lastGrabbed;
         private float _scale;
 
         public IdsFrameSource()
@@ -88,10 +86,10 @@ namespace L4NdoStreamService.Entities.FrameSource
             this._camera.Acquisition.Capture();
         }
 
-        public async Task<BitmapData> GrabArgbAsync() =>
+        public async Task<Bitmap> GrabArgbAsync() =>
             await Task.Run(this.GrabArgb);
 
-        public BitmapData GrabArgb()
+        public Bitmap GrabArgb()
         {
             this._camera.Memory.GetLast(out int memoryId);
             this._camera.Memory.CopyToBitmap(memoryId, out Bitmap bitmap);
@@ -102,19 +100,11 @@ namespace L4NdoStreamService.Entities.FrameSource
             using Graphics gr = Graphics.FromImage(converted);
             gr.DrawImage(bitmap, new Rectangle(0, 0, converted.Width, converted.Height));
 
-            this._lastGrabbed?.Dispose();
-            this._lastGrabbed = converted;
-            BitmapData data = this._lastGrabbed.LockBits(
-                    new Rectangle(0, 0, this._lastGrabbed.Width, this._lastGrabbed.Height),
-                    ImageLockMode.ReadOnly,
-                    System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-
-            return data;
+            return converted;
         }
 
         public void Dispose()
         {
-            this._lastGrabbed?.Dispose();
             this._camera?.Acquisition.Stop();
             this._camera?.Exit();
         }

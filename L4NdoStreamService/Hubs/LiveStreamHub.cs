@@ -108,6 +108,8 @@ namespace L4NdoStreamService.Hubs
                         ? new BaslerFrameSource(true)
                         : stream == "basler"
                         ? new BaslerFrameSource()
+                        : stream == "webcam"
+                        ? new WebcamFrameSource()
                         : new IdsFrameSource()
                     );
                     renderer.NewFrametime += time => this._logger.LogInformation($"Frametime {stream}: {time}");
