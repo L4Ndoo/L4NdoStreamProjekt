@@ -79,7 +79,7 @@ namespace L4NdoStreamService.Entities.FrameSource
         public IdsFrameSource()
         {
             uEye.Info.Camera.GetCameraList(out CameraInformation[] camInfos);
-           this._camera = new Camera(camInfos.First().CameraID);
+            this._camera = new Camera(camInfos.First().CameraID);
             this._camera.Memory.Allocate();
             this._camera.Memory.GetList(out int[] idList);
             this._camera.Memory.Sequence.Add(idList);
@@ -97,8 +97,9 @@ namespace L4NdoStreamService.Entities.FrameSource
             if(bitmap == null) { return null; }
 
             Bitmap converted = new (bitmap.Width, bitmap.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            using Graphics gr = Graphics.FromImage(converted);
-            gr.DrawImage(bitmap, new Rectangle(0, 0, converted.Width, converted.Height));
+            using Graphics g = Graphics.FromImage(converted);
+            g.DrawImage(bitmap, new Rectangle(0, 0, converted.Width, converted.Height));
+            g.Save();
 
             return converted;
         }

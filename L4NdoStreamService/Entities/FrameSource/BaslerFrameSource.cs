@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Basler.Pylon;
+using L4NdoStreamService.Utilities;
 
 namespace L4NdoStreamService.Entities.FrameSource
 {
@@ -12,8 +13,9 @@ namespace L4NdoStreamService.Entities.FrameSource
         public float Scale { get; set; } = 1;
 
         private readonly Camera _camera;
+        private readonly object _imagelock = new ();
         private Bitmap _currentImage;
-        private object _imagelock = new ();
+
         public BaslerFrameSource(bool emulator = false)
         {
             ICameraInfo info = CameraFinder.Enumerate().FirstOrDefault(info => info.GetValueOrDefault(CameraInfoKey.DeviceType, string.Empty) == DeviceType.GigE);
@@ -31,20 +33,22 @@ namespace L4NdoStreamService.Entities.FrameSource
         {
             if(e.GrabResult.GrabSucceeded)
             {
-                using PixelDataConverter converter = new PixelDataConverter { OutputPixelFormat = PixelType.BGR8packed };
+                using PixelDataConverter converter = new () { OutputPixelFormat = PixelType.BGR8packed };
                 long bufferSize = converter.GetBufferSizeForConversion(e.GrabResult);
                 byte[] buffer = new byte[bufferSize];
                 converter.Convert(buffer, e.GrabResult);
 
-                Bitmap bitmap = new(e.GrabResult.Width, e.GrabResult.Height, PixelFormat.Format24bppRgb);
+                using Bitmap bitmap = new(e.GrabResult.Width, e.GrabResult.Height, PixelFormat.Format24bppRgb);
                 BitmapData data = bitmap.LockBits(new(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
                 Marshal.Copy(buffer, 0, data.Scan0, buffer.Length);
                 bitmap.UnlockBits(data);
 
+                Bitmap scaled = bitmap.Scale(this.Scale);
+
                 lock (this._imagelock)
                 {
                     this._currentImage?.Dispose();
-                    this._currentImage = bitmap;
+                    this._currentImage = scaled;
                 }
             }
         }
@@ -62,12 +66,8 @@ namespace L4NdoStreamService.Entities.FrameSource
                     currentImage = this._currentImage;
                     this._currentImage = null;
                 }
-                using Bitmap converted = new Bitmap(currentImage.Width, currentImage.Height, PixelFormat.Format32bppArgb);
-                using Graphics gr = Graphics.FromImage(converted);
-                gr.DrawImage(currentImage, new Rectangle(0, 0, converted.Width, converted.Height));
-                currentImage.Dispose();
 
-                return new Bitmap(converted, (int)(converted.Width * this.Scale), (int)(converted.Height * this.Scale));
+                return currentImage;
             }
             else { return null; }
         }

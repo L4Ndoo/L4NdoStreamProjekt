@@ -44,7 +44,7 @@ namespace L4NdoStreamService.Entities.FrameSource
         public Bitmap GrabArgb()
         {
             using Image image = Image.FromFile($"{this.Path}{this.FileName}{this._frameIndex.ToString().PadLeft(4, '0')}.jpg");
-            return new Bitmap(image, (int)(image.Width * this.Scale), (int)(image.Height * this.Scale));
+            return image.Scale(this.Scale);
         }
     }
 }
